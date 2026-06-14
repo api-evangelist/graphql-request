@@ -1,0 +1,538 @@
+"""
+GraphQL Request / Graffle — Client Library Type Schema
+
+This SDL documents the core request/response types, configuration surfaces, and
+extension interfaces of the graphql-request / Graffle client library.
+
+Graffle is a minimal, isomorphic GraphQL client for JavaScript and TypeScript.
+It does not expose a hosted GraphQL API; these types describe the library's own
+TypeScript API surface translated into SDL for reference and tooling purposes.
+
+Sources:
+  https://github.com/graffle-js/graffle
+  https://graffle.js.org/guides/getting-started
+  npm: graphql-request / graffle@next
+"""
+
+# ---------------------------------------------------------------------------
+# Enumerations
+# ---------------------------------------------------------------------------
+
+"""
+The HTTP method mode used when sending a GraphQL request over HTTP.
+
+- POST  : Encodes the request as a JSON body (per GraphQL-over-HTTP POST spec).
+- GET   : Encodes the query, variables, and operation name as URL search
+          parameters (per GraphQL-over-HTTP GET spec). Suitable for read-only
+          queries that benefit from HTTP caching.
+
+Reference: https://graphql.github.io/graphql-over-http/draft/
+"""
+enum MethodMode {
+  """Send query as a JSON POST body (default)."""
+  post
+
+  """Send query as URL search parameters (GET request for read operations)."""
+  getReads
+}
+
+"""
+Determines how output is delivered to callers when errors occur.
+
+- throw  : Raise the error as a thrown exception (default for most categories).
+- return : Return the error as a resolved value instead of throwing.
+"""
+enum OutputChannel {
+  """Throw the error as an exception."""
+  throw
+
+  """Return the error as a resolved value."""
+  return
+}
+
+"""
+Granular per-error-category output channel override.
+Inherits from the global default when set to 'default'.
+"""
+enum OutputChannelConfig {
+  """Throw the error as an exception."""
+  throw
+
+  """Return the error as a resolved value."""
+  return
+
+  """Inherit the global default error channel."""
+  default
+}
+
+"""
+The GraphQL operation type.
+"""
+enum OperationType {
+  query
+  mutation
+  subscription
+}
+
+"""
+The transport layer used to execute GraphQL requests.
+
+- http   : Send requests over HTTP/HTTPS (uses the Fetch API).
+- memory : Execute requests directly against an in-memory GraphQLSchema object
+           without any network overhead. Useful for testing and SSR.
+"""
+enum TransportType {
+  http
+  memory
+}
+
+# ---------------------------------------------------------------------------
+# Core Request Types
+# ---------------------------------------------------------------------------
+
+"""
+A GraphQL variable value. Variables may be any JSON-serializable primitive,
+object, or array. Custom scalars (e.g. Date, File, Blob) are also permitted
+at runtime and are encoded/decoded by registered scalar codecs.
+"""
+scalar VariableValue
+
+"""
+A map of variable names to their runtime values, passed alongside a GraphQL
+document to parameterize the operation.
+
+Example:
+  { "type": "electric", "limit": 10 }
+"""
+scalar VariablesMap
+
+"""
+A GraphQL document (operation string) to be executed.
+May be a plain string or a TypedDocumentNode object (from graphql-tag or
+code-generated types). Template literal syntax is not supported at runtime.
+
+Example plain string:
+  "query getPokemons($type: PokemonType!) { pokemons(filter: { type: $type }) { name } }"
+"""
+scalar DocumentNode
+
+"""
+Represents a single GraphQL request sent to an endpoint or in-memory schema.
+This is the normalized shape of the payload the library constructs before
+handing it to the transport layer.
+"""
+type GraphQLRequest {
+  """
+  The GraphQL document (query, mutation, or subscription) as a string or
+  TypedDocumentNode.
+  """
+  query: DocumentNode!
+
+  """
+  Optional map of variable values to be substituted into the document.
+  """
+  variables: VariablesMap
+
+  """
+  Optional name of the specific operation to execute when the document
+  contains multiple named operations.
+  """
+  operationName: String
+
+  """
+  The resolved operation type derived from the parsed document. Used
+  internally by the request pipeline to select the correct execution path.
+  """
+  operation: OperationType!
+}
+
+"""
+Input shape accepted by the client's gql() method and internal send helpers.
+Corresponds to GraphqlKit.Request.RequestInput in the source.
+"""
+input RequestInput {
+  """The GraphQL document string or TypedDocumentNode to execute."""
+  query: DocumentNode!
+
+  """Variables to pass to the operation."""
+  variables: VariablesMap
+
+  """Name of the operation to run when the document has multiple operations."""
+  operationName: String
+}
+
+# ---------------------------------------------------------------------------
+# Execution Result / Response Types
+# ---------------------------------------------------------------------------
+
+"""
+A location pointer within a GraphQL document, referencing a specific line and
+column where an error was detected.
+"""
+type SourceLocation {
+  """1-based line number in the GraphQL document."""
+  line: Int!
+
+  """1-based column number in the GraphQL document."""
+  column: Int!
+}
+
+"""
+A single error returned in the 'errors' array of a GraphQL execution result.
+Mirrors the GraphQLFormattedError interface from the 'graphql' package.
+"""
+type GraphQLFormattedError {
+  """Human-readable description of the error."""
+  message: String!
+
+  """
+  One or more locations in the GraphQL document where the error occurred.
+  Absent for errors that are not associated with a document location.
+  """
+  locations: [SourceLocation!]
+
+  """
+  The path into the result data where the error occurred, represented as
+  a list of field names and/or list indices. Absent for non-field errors.
+  """
+  path: [String!]
+
+  """
+  Arbitrary extension data attached to the error by the server. May include
+  classification codes, timestamps, or other diagnostic information.
+  """
+  extensions: JSON
+}
+
+"""
+Arbitrary JSON extension data attached to an execution result or error.
+"""
+scalar JSON
+
+"""
+The standard GraphQL execution result envelope returned after a request.
+Mirrors the FormattedExecutionResult / GraffleExecutionResultEnvelope shape.
+
+By default Graffle unwraps the envelope and returns only 'data' (or throws on
+errors). Envelope mode is opt-in via output configuration.
+"""
+type ExecutionResult {
+  """
+  The data returned by the operation, shaped by the selection set.
+  Null when the operation produced errors and no partial data.
+  """
+  data: JSON
+
+  """
+  A list of errors encountered during execution. Present when one or more
+  field resolvers failed or the document was invalid.
+  """
+  errors: [GraphQLFormattedError!]
+
+  """
+  Arbitrary extension data attached to the result by the server (e.g. tracing,
+  cache hints, rate-limit metadata).
+  """
+  extensions: JSON
+
+  """
+  The raw HTTP Response object. Only present when using the HTTP transport and
+  envelope mode is enabled.
+  """
+  response: HttpResponse
+}
+
+"""
+A minimal representation of the HTTP response received from the server.
+Surfaced in the execution result when using the HTTP transport with envelope
+mode enabled.
+"""
+type HttpResponse {
+  """HTTP status code (e.g. 200, 400, 500)."""
+  status: Int!
+
+  """HTTP status text (e.g. "OK", "Bad Request")."""
+  statusText: String!
+
+  """Response headers as a key-value map."""
+  headers: JSON
+}
+
+# ---------------------------------------------------------------------------
+# Transport Configuration
+# ---------------------------------------------------------------------------
+
+"""
+Configuration for the HTTP transport layer.
+Passed to client.transport({ url, methodMode, headers, ... }).
+"""
+input TransportHttpConfigurationInput {
+  """
+  The GraphQL endpoint URL. Accepts:
+  - An absolute URL string (e.g. "https://api.example.com/graphql")
+  - A relative path string (e.g. "/api/graphql", "./graphql", "../graphql")
+  - A URL object
+
+  Relative paths are resolved against the page origin in browsers and are
+  supported in frameworks like SvelteKit that enhance the fetch API.
+  Note: Node.js native fetch does not support relative URLs.
+  """
+  url: String
+
+  """
+  The HTTP method mode controlling how the payload is encoded.
+  Defaults to 'post'.
+  """
+  methodMode: MethodMode
+
+  """
+  Additional HTTP headers to include with every request.
+  Accepts any value accepted by the Fetch API HeadersInit type.
+  """
+  headers: JSON
+
+  """
+  Raw RequestInit options passed directly to the underlying fetch() call.
+  Allows setting credentials, cache, redirect, signal, and other fetch options.
+  """
+  raw: JSON
+}
+
+"""
+Normalized (resolved) HTTP transport configuration after defaults are applied.
+"""
+type TransportHttpConfigurationNormalized {
+  """The resolved GraphQL endpoint URL."""
+  url: String!
+
+  """The resolved HTTP method mode (always 'post' or 'getReads')."""
+  methodMode: MethodMode!
+
+  """Resolved headers, if any."""
+  headers: JSON
+
+  """Resolved raw fetch RequestInit options, if any."""
+  raw: JSON
+}
+
+# ---------------------------------------------------------------------------
+# Output / Error Configuration
+# ---------------------------------------------------------------------------
+
+"""
+Configuration controlling how errors and result envelopes are delivered to
+callers. Passed to client.with({ output: ... }).
+"""
+input OutputConfigurationInput {
+  """
+  Default error channel applied when a per-category channel is set to
+  'default'. Defaults to 'throw'.
+  """
+  defaults: OutputDefaultsInput
+
+  """
+  Enable envelope mode. When true, the full ExecutionResult object (including
+  'errors' and 'extensions') is returned instead of only 'data'.
+  """
+  envelope: Boolean
+
+  """
+  Granular error channel overrides by category.
+  """
+  errors: OutputErrorsInput
+}
+
+"""Defaults for output behavior."""
+input OutputDefaultsInput {
+  """
+  The default error channel. Applies to all error categories unless overridden.
+  @defaultValue 'throw'
+  """
+  errorChannel: OutputChannel
+}
+
+"""Granular per-category error output channel configuration."""
+input OutputErrorsInput {
+  """
+  Channel for GraphQL execution errors (errors in the 'errors' result field).
+  @defaultValue inherited from defaults.errorChannel ('throw')
+  """
+  execution: OutputChannelConfig
+
+  """
+  Channel for non-execution errors such as network failures, extension
+  errors, or fetch exceptions.
+  @defaultValue inherited from defaults.errorChannel ('throw')
+  """
+  other: OutputChannelConfig
+}
+
+"""Normalized output configuration after defaults are applied."""
+type OutputConfigurationNormalized {
+  defaults: OutputDefaults!
+  envelope: OutputEnvelopeNormalized!
+  errors: OutputErrorsNormalized!
+}
+
+"""Normalized output defaults."""
+type OutputDefaults {
+  errorChannel: OutputChannel!
+}
+
+"""Normalized envelope configuration."""
+type OutputEnvelopeNormalized {
+  """Whether envelope mode is active."""
+  enabled: Boolean!
+
+  """Controls which error categories are included in the envelope errors array."""
+  errors: OutputEnvelopeErrors!
+}
+
+"""Error categories included in an envelope result's 'errors' array."""
+type OutputEnvelopeErrors {
+  """Include execution errors in the envelope."""
+  execution: Boolean!
+
+  """Include other (non-execution) errors in the envelope."""
+  other: Boolean!
+}
+
+"""Normalized per-category error channel values."""
+type OutputErrorsNormalized {
+  execution: OutputChannelConfig!
+  other: OutputChannelConfig!
+}
+
+# ---------------------------------------------------------------------------
+# Scalar Codec
+# ---------------------------------------------------------------------------
+
+"""
+A codec registered for a custom scalar type, providing encode/decode functions
+to transform values between JavaScript runtime types and GraphQL wire format.
+
+Register via: client.scalar('Date', { encode, decode })
+"""
+type ScalarCodec {
+  """The name of the GraphQL custom scalar this codec handles (e.g. 'Date')."""
+  name: String!
+}
+
+# ---------------------------------------------------------------------------
+# Request Pipeline Steps
+# ---------------------------------------------------------------------------
+
+"""
+The named steps in Graffle's request pipeline (anyware interceptor points).
+Interceptors registered via client.anyware() can hook into any of these steps.
+
+Pipeline order: encode → pack → exchange → unpack → decode
+"""
+enum RequestPipelineStep {
+  """
+  Encode step: applies custom scalar encoding to request variables before
+  the request is sent. Only runs when a schema map is configured.
+  """
+  encode
+
+  """
+  Pack step: transport-specific step that prepares the request for the wire
+  (e.g. serializes to JSON body or URL search parameters for HTTP transport).
+  """
+  pack
+
+  """
+  Exchange step: sends the request over the network (or executes it against an
+  in-memory schema) and retrieves the raw response.
+  """
+  exchange
+
+  """
+  Unpack step: transport-specific step that extracts the raw execution result
+  from the wire response (e.g. parses the JSON HTTP response body).
+  """
+  unpack
+
+  """
+  Decode step: applies custom scalar decoding to result data, and applies
+  output channel handling (throw / return / envelope).
+  """
+  decode
+}
+
+# ---------------------------------------------------------------------------
+# File Upload (GraphQL Multipart Request Spec)
+# ---------------------------------------------------------------------------
+
+"""
+Represents a file upload variable. Files must be assigned to variables whose
+type maps to the Upload scalar. Requires the Upload extension to be registered
+and the HTTP transport to be active.
+
+Reference: https://github.com/jaydenseric/graphql-multipart-request-spec
+"""
+scalar Upload
+
+"""
+A batch of file upload mappings sent as part of a multipart form request.
+Each entry maps an object path in the variables to a File or Blob.
+"""
+type UploadMap {
+  """Object path into the variables object pointing to the file (e.g. "variables.file")."""
+  path: String!
+
+  """The file or blob being uploaded."""
+  file: Upload!
+}
+
+# ---------------------------------------------------------------------------
+# Batch Request
+# ---------------------------------------------------------------------------
+
+"""
+A batch of GraphQL requests sent in a single HTTP call as a JSON array.
+The server must support batched requests for this to work.
+The response is an array of ExecutionResult objects in the same order.
+
+Note: Batch request support is not built into the core Graffle client as of
+the current version. Batching can be implemented via anyware interceptors or
+custom transport configuration.
+"""
+type BatchRequest {
+  """The ordered list of individual GraphQL requests in this batch."""
+  requests: [GraphQLRequest!]!
+}
+
+"""
+The response to a batch request — an ordered list of execution results
+corresponding to each request in the batch, in the same order.
+"""
+type BatchResult {
+  """Ordered results, one per request in the batch."""
+  results: [ExecutionResult!]!
+}
+
+# ---------------------------------------------------------------------------
+# Client Configuration (top-level with() input)
+# ---------------------------------------------------------------------------
+
+"""
+Top-level configuration accepted by client.with({ ... }).
+Allows configuring output behavior and schema mapping in one call.
+"""
+input ClientConfigurationInput {
+  """Output and error handling configuration."""
+  output: OutputConfigurationInput
+
+  """Schema configuration (used with generated schema maps for type-safe clients)."""
+  schema: SchemaConfigurationInput
+}
+
+"""Schema configuration for generated type-safe clients."""
+input SchemaConfigurationInput {
+  """
+  The schema definition data map (SDDM) generated by the Graffle code generator.
+  Enables custom scalar encoding/decoding and type-safe query building.
+  """
+  map: JSON
+}
