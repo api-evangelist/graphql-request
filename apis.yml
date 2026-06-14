@@ -1,0 +1,63 @@
+aid: graphql-request
+name: GraphQL Request
+description: "Minimal, isomorphic GraphQL client for JavaScript/TypeScript originally
+  from the Prisma team, now evolved into Graffle — with support for file uploads,
+  batch requests, custom headers, TypeScript type inference, and a powerful extension
+  system. Runs in Node.js and browsers."
+type: Index
+image: https://kinlane-productions2.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+url: https://graffle.js.org
+baseURL: https://graffle.js.org
+created: 2026-06-14
+modified: 2026-06-14
+specificationVersion: '0.19'
+tags:
+  - GraphQL
+  - GraphQL Client
+  - JavaScript
+  - TypeScript
+  - Open Source
+  - Isomorphic
+
+apis:
+  - aid: graphql-request:graphql-api
+    name: GraphQL Request GraphQL API
+    description: "Minimal, type-safe GraphQL client API supporting HTTP and in-memory
+      transports, custom scalars, file uploads, and a composable extension system
+      for JavaScript and TypeScript applications."
+    tags:
+      - GraphQL
+      - GraphQL Client
+      - TypeScript
+      - JavaScript
+    humanURL: https://graffle.js.org/guides/getting-started
+    baseURL: https://graffle.js.org
+    properties:
+      - url: https://graffle.js.org/guides/getting-started
+        type: Documentation
+      - url: graphql/graphql-request-graphql.md
+        type: GraphQL
+
+common:
+  - url: https://graffle.js.org
+    type: Website
+  - url: https://graffle.js.org/guides/getting-started
+    type: Documentation
+  - url: https://www.linkedin.com/company/graphql-portal
+    type: LinkedIn
+  - url: https://github.com/graffle-js/graffle
+    type: GitHubOrganization
+  - url: https://github.com/sponsors/jasonkuhrt
+    type: Pricing
+  - url: https://www.npmjs.com/package/graphql-request
+    type: NpmPackage
+  - url: plans/graphql-request-plans.md
+    type: Plans
+  - url: rate-limits/graphql-request-rate-limits.md
+    type: RateLimits
+  - url: finops/graphql-request-finops.md
+    type: FinOps
+
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com
