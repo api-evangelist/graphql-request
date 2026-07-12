@@ -39,6 +39,8 @@ apis:
         type: GraphQL
 
 common:
+  - type: DomainSecurity
+    url: security/graphql-request-domain-security.yml
   - url: https://graffle.js.org
     type: Website
   - url: https://graffle.js.org/guides/getting-started
