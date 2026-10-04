@@ -33,12 +33,15 @@ baseURL: https://graffle.js.org
 created: 2026-06-14
 modified: 2026-06-14
 specificationVersion: '0.23'
+x-docs-platform: vitepress
+x-docs-platform-confidence: medium
+x-docs-platform-checked: 2026-10-03
 tags:
   - GraphQL
   - GraphQL Client
   - JavaScript
   - TypeScript
-  - Open-Source
+  - Open Source
   - Isomorphic
 tags_raw:
   - GraphQL
@@ -47,6 +50,7 @@ tags_raw:
   - TypeScript
   - Open Source
   - Isomorphic
+  - Open-Source
 
 apis:
   - aid: graphql-request:graphql-api
@@ -60,7 +64,6 @@ apis:
       - TypeScript
       - JavaScript
     humanURL: https://graffle.js.org/guides/getting-started
-    baseURL: https://graffle.js.org
     properties:
       - url: https://graffle.js.org/guides/getting-started
         type: Documentation
