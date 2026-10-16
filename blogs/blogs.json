@@ -1,0 +1,14 @@
+{
+  "repo": "graphql-request",
+  "feeds": [
+    {
+      "source": "https://graffle.js.org/updates/",
+      "feed_url": "https://graffle.js.org/updates/",
+      "title": "",
+      "saved": 0,
+      "method": "none"
+    }
+  ],
+  "post_count": 0,
+  "fetched": "2026-10-10T13:15:00Z"
+}
