@@ -64,64 +64,93 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Minimal, isomorphic GraphQL client for JavaScript/TypeScript originally created by the Prisma team. The library has evolved and is now published as [Graffle](https://graffle.js.org) (the `graphql-request` npm package legacy branch remains available). It supports file uploads, batch requests, custom headers, TypeScript type inference, and a powerful extension system. Runs in Node.js and all modern browsers.
+Minimal, isomorphic GraphQL client for JavaScript/TypeScript originally from the Prisma team, now evolved into Graffle — with support for file uploads, batch requests, custom headers, TypeScript type inference, and a powerful extension system. Runs in Node.js and browsers.
 
-## Overview
+**Areas:** GraphQL · GraphQL Client · JavaScript · TypeScript · Open Source · Isomorphic
 
-- **npm package:** `graphql-request` (legacy) / `graffle` (current)
-- **GitHub:** https://github.com/graffle-js/graffle
-- **Documentation:** https://graffle.js.org
-- **License:** MIT
-- **Stars:** 6,100+
+## GraphQL Request on APIs.io
 
-## Key Features
+Everything profiled for GraphQL Request is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/graphql-request/](https://apis.io/providers/graphql-request/)** — or go straight to one of the APIs or properties below.
 
-- Minimal API surface — send a GraphQL query in two lines of code
-- Full TypeScript type inference via Document Builder
-- HTTP and in-memory transport support
-- Composable extension system (OpenTelemetry, file uploads, schema error handling)
-- Custom scalar codec support
-- Spec-compliant with GraphQL over HTTP and GraphQL Multipart Request specifications
+### APIs (1)
 
-## Quick Start
+- [GraphQL Request GraphQL API](https://apis.io/apis/graphql-request/graphql-api/) — Minimal, type-safe GraphQL client API supporting HTTP and in-memory transports, custom scalars, file uploads, and a composable extension system for…
 
-```bash
-npm install graphql-request graphql
-```
+### Published properties
 
-```typescript
-import { request, gql } from 'graphql-request'
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
 
-const query = gql`
-  {
-    users {
-      id
-      name
-    }
-  }
-`
+#### GraphQL (1)
 
-const data = await request('https://api.example.com/graphql', query)
-```
+GraphQL schemas.
 
-## Resources
+- [GraphQL Request GraphQL API](https://apis.io/graphqls/graphql-request/graphql-request-graphql/)
 
-| Resource | URL |
-|----------|-----|
-| Website | https://graffle.js.org |
-| Documentation | https://graffle.js.org/guides/getting-started |
-| GitHub | https://github.com/graffle-js/graffle |
-| npm (current) | https://www.npmjs.com/package/graffle |
-| npm (legacy) | https://www.npmjs.com/package/graphql-request |
-| Sponsor | https://github.com/sponsors/jasonkuhrt |
+#### Security (1)
 
-## Catalog Files
+Authentication, trust centre, and vulnerability disclosure.
 
-- [apis.yml](apis.yml) — APIs.json 0.19 catalog entry
-- [plans/graphql-request-plans.md](plans/graphql-request-plans.md) — Pricing and plan details
-- [rate-limits/graphql-request-rate-limits.md](rate-limits/graphql-request-rate-limits.md) — Rate limiting guidance
-- [finops/graphql-request-finops.md](finops/graphql-request-finops.md) — FinOps and cost considerations
+- [Graphql Request Domain Security](https://apis.io/security/graphql-request/graphql-request-domain-security/)
 
-## Maintainer
+## Where to find this API
 
-Kin Lane — kin@apievangelist.com
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://graffle.js.org)
+- [Documentation](https://graffle.js.org/guides/getting-started)
+- [Pricing](https://github.com/sponsors/jasonkuhrt)
+- [Blog](https://graffle.js.org/updates/)
+- [GitHub](https://github.com/graffle-js/graffle)
+
+## API Evangelist rating
+
+**Kin Score 20.1** — emerging · rubric 0.24.0 · scored 2026-10-17
+
+| Facet | Score |
+|---|---|
+| Discoverability | 64.3 |
+| Contract quality | 39.4 |
+| Contract governance | 0.0 |
+| Operational transparency | 5.3 |
+| Developer ergonomics | 11.9 |
+| Access clarity | 10.5 |
+
+**Agent readiness 15.5** — agent-aware
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | — |
+| Idempotency | — |
+| Error Semantics | — |
+| OpenAPI Examples | — |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | — |
+| Agent Skills | — |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+
+**Regulatory alignment 5.9** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/graphql-request/](https://apis.io/providers/graphql-request/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for GraphQL Request: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/graphql-request/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
